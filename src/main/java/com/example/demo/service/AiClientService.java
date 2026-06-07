@@ -13,8 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 
-import static java.awt.SystemColor.text;
-
 @Service
 public class AiClientService {
 
@@ -165,6 +163,11 @@ Never deviate from schema.
     }
 
     private AiResponseDto fallback() {
-        return new AiResponseDto("neutral", 0);
+
+        return new AiResponseDto(
+                "neutral",
+                0,
+                true
+        );
     }
 }

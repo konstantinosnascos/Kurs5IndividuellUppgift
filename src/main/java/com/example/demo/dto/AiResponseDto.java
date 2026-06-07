@@ -12,6 +12,8 @@ public record AiResponseDto(
 
         @Min(0)
         @Max(100)
-        int score
+        int score,
+
+        boolean error
 )
 {}

@@ -9,6 +9,8 @@ import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -19,9 +21,13 @@ public class OpenAiClient {
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
     private final Validator validator;
+    private static final Logger log = LoggerFactory.getLogger(OpenAiClient.class);
 
     @Value("${openai.api.key}")
     private String apiKey;
+
+    @Value("${openai.model}")
+    private String model;
 
     private static final String SYSTEM_PROMPT =
             """
@@ -40,19 +46,38 @@ public class OpenAiClient {
               "sentiment":"positive|negative|neutral",
               "score":0-100
             }
-
+    
+            EXAMPLES:
+    
+            Input:
+            I love this product.
+    
+            Output:
+            {"sentiment":"positive","score":95}
+    
+            Input:
+            This is terrible.
+    
+            Output:
+            {"sentiment":"negative","score":90}
+    
+            Input:
+            The package arrived today.
+    
+            Output:
+            {"sentiment":"neutral","score":70}
+    
             Always follow the schema exactly.
             """;
 
     public OpenAiClient(
             RestClient restClient,
-            ObjectMapper objectMapper
+            ObjectMapper objectMapper,
+            Validator validator
     ) {
         this.restClient = restClient;
         this.objectMapper = objectMapper;
-        this.validator =
-                Validation.buildDefaultValidatorFactory()
-                        .getValidator();
+        this.validator = validator;
     }
 
     @PostConstruct
@@ -87,18 +112,37 @@ public class OpenAiClient {
                 if (e.getMessage() != null &&
                         e.getMessage().contains("429")) {
 
-                    System.out.println(
-                            "Rate limit hit. Retrying..."
+                    log.warn(
+                            "Rate limit hit. Retry {}/{}. Waiting {} ms",
+                            i + 1,
+                            retries,
+                            delay
                     );
 
                     try {
+
                         Thread.sleep(delay);
-                    } catch (InterruptedException ignored) {
+
+                    } catch (InterruptedException ie) {
+
+                        Thread.currentThread().interrupt();
+
+                        log.error(
+                                "Retry interrupted",
+                                ie
+                        );
+
+                        return fallback();
                     }
 
                     delay *= 2;
                     continue;
                 }
+
+                log.error(
+                        "OpenAI request failed",
+                        e
+                );
 
                 return fallback();
             }
@@ -110,7 +154,7 @@ public class OpenAiClient {
     private Map<String, Object> buildRequestBody(String text) {
 
         return Map.of(
-                "model", "gpt-4.1-mini",
+                "model", model,
                 "temperature", 0.1,
                 "messages", List.of(
                         Map.of(
@@ -176,12 +220,28 @@ public class OpenAiClient {
                     validator.validate(dto);
 
             if (!violations.isEmpty()) {
+
+                log.warn(
+                        "Validation failed: {}",
+                        violations
+                );
+
                 return fallback();
             }
 
-            return dto;
+            return new AiResponseDto(
+                    dto.sentiment(),
+                    dto.score(),
+                    false
+            );
 
         } catch (Exception e) {
+
+            log.error(
+                    "Failed to parse AI response: {}",
+                    aiContent,
+                    e
+            );
 
             return fallback();
         }
@@ -191,7 +251,8 @@ public class OpenAiClient {
 
         return new AiResponseDto(
                 "neutral",
-                0
+                0,
+                true
         );
     }
 }
