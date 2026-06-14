@@ -25,3 +25,17 @@ Text som inte matchar vad jjag ber den returnera:
 }
 
 { "sentiment": "negative", "score": 95, "error": false }
+
+ändrade till factory.setReadTimeout(1); i aiconfig, får alltid nu:
+
+{
+"sentiment": "neutral",
+"score": 0,
+"error": true
+}
+
+satte anrop till ny controller och fick detta i konsol vid anrop:
+
+2026-06-14T11:22:03.121+02:00  WARN 85060 --- [demo] [nio-8080-exec-2] com.example.demo.client.OpenAiClient     : Rate limit hit. Retry 1/3. Waiting 1000 ms
+2026-06-14T11:22:04.127+02:00  WARN 85060 --- [demo] [nio-8080-exec-2] com.example.demo.client.OpenAiClient     : Rate limit hit. Retry 2/3. Waiting 2000 ms
+2026-06-14T11:22:06.133+02:00  WARN 85060 --- [demo] [nio-8080-exec-2] com.example.demo.client.OpenAiClient     : Rate limit hit. Retry 3/3. Waiting 4000 ms
