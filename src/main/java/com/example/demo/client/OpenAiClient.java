@@ -29,6 +29,9 @@ public class OpenAiClient {
     @Value("${openai.model}")
     private String model;
 
+    @Value("${openai.api.url:https://api.openai.com/v1/chat/completions}")
+    private String apiUrl;
+
     private static final String SYSTEM_PROMPT =
             """
             You are a sentiment analysis engine.
@@ -172,7 +175,7 @@ public class OpenAiClient {
     private String callOpenAi(Map<String, Object> body) {
 
         return restClient.post()
-                .uri("https://api.openai.com/v1/chat/completions")
+                .uri(apiUrl)
                 .header("Authorization",
                         "Bearer " + apiKey)
                 .header("Content-Type",
