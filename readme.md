@@ -39,3 +39,18 @@ satte anrop till ny controller och fick detta i konsol vid anrop:
 2026-06-14T11:22:03.121+02:00  WARN 85060 --- [demo] [nio-8080-exec-2] com.example.demo.client.OpenAiClient     : Rate limit hit. Retry 1/3. Waiting 1000 ms
 2026-06-14T11:22:04.127+02:00  WARN 85060 --- [demo] [nio-8080-exec-2] com.example.demo.client.OpenAiClient     : Rate limit hit. Retry 2/3. Waiting 2000 ms
 2026-06-14T11:22:06.133+02:00  WARN 85060 --- [demo] [nio-8080-exec-2] com.example.demo.client.OpenAiClient     : Rate limit hit. Retry 3/3. Waiting 4000 ms
+
+Köra med docker:
+docker compose up --build
+
+testade sen i postman:
+POST http://localhost:8080/api/ai/analyze 
+{ 
+"text": "I love this product" 
+}
+och fick 
+{ 
+"sentiment": "positive", 
+"score": 95, 
+"error": false
+} så det fungerar.
