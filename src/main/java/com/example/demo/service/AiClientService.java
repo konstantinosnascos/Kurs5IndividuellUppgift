@@ -13,7 +13,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 
-@Service
+//Denna används ej längre och kan tas bort, men lämnar kvar den så du kan se hur det va innan jag delade upp service och client.
+//@Service
 public class AiClientService {
 
     private final RestClient restClient;
