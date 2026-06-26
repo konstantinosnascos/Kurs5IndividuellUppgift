@@ -34,7 +34,7 @@ docker compose up --build
 ./mvnw spring-boot:run
 
 ## Liten note om arkitektur:
-Under utveckling av appen så skapades detta med Client och Service i samma klass. Efter det delade jag upp i en Client och en Service för bättre ansvarsfördelning. Den äldre clientservice finns kvar endast som referens för bedömning, fullt medveten om att gammal kod ska städas ur ett projekt annars.
+Under utveckling av appen så skapades detta med Client och Service i samma klass. Efter det delade jag upp i en Client och en Service för bättre ansvarsfördelning. Den äldre clientservice finns kvar endast som referens för bedömning, fullt medveten om att gammal kod ska städas ur ett projekt annars. OBS! Nu under 2k5 så kommer clientservice plockas bort som en del av säkerhetsåtgärderna som implementeras.
 
 # Promptstrategi och edgecases:
 Systemprompten är utformad för att styra modellen mot ett strikt json-format utan md eller extra output av någon sort. Utöver vad som finns i systemprompt så begränsas dto request och response. Request till max 1000 tecken så man inte kan "förvirra" AI:n med mycket text och mer än 0 tecken för att inte skicka tomma input. Response begränsas i dto med regex till 3 godkända svar och sentiment till 0-100. Temp är satt till 0.1 för att minska variation mellan identiska anrop.

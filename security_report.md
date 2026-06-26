@@ -7,6 +7,14 @@ Ingen auth som begränsar vem som kan använda appen eller hur mycket tokens den
 A06
 dependencies med kända sårbarheter. inga varnas för i pom, dubbelkolla med en extern tjänst
 snabbt, kanske inte finns problem
+Slog på dependency graph, dependabot alerts/security updates
+
+Repositoryt kollades med GitHub Dependabot och Secret Scanning. Dependabot hittade inga sårbarheter i projektets Maven-dependencies. Secret Scanning hittade inga exponerade hemligheter eller API-nycklar i repositoryt. 
+Lagt till 
+<groupId>org.owasp</groupId>
+<artifactId>dependency-check-maven</artifactId>
+i pom och kör en kontroll också just nu,
+
 
 A05
 test-endpoint är kvar. kan lägga som dev-profil kanske
