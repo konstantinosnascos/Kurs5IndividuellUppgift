@@ -45,6 +45,10 @@ Längst ner i readme.md finns sparade anrop och svar. Flera tester för andra ed
 
 <img src="images/tests-docker.png" alt="Tester/Docker" width="600">
 
+Iom säker implementering av nycklar va relevant för uppgiften så kan höger sida av bilden under vara relevant där githubs check visar att inga hemligheter i form av nycklar är exponerade.
+
+<img src="images/dependabot.png" alt="Tester/Docker" width="600">
+
 ## Dessa prompts täcker:
 Tom input - som ger valideringsfel
 Timeout -genom att sänka timeout för att visa att logik fungerar
