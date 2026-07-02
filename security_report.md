@@ -35,8 +35,25 @@ har lagt till bucket4j för att begränsa antal anrop man kan göra(del av lösn
 
 
 
-$env:NVD_API_KEY="......."
+$env:NVD_API_KEY="...b"
 mkdir C:\temp
 $env:TEMP="C:\temp"
 $env:TMP="C:\temp"
 ./mvnw dependency-check:check
+
+
+
+New-Item -ItemType Directory -Force C:\temp
+$env:TEMP="C:\temp"
+$env:TMP="C:\temp"
+./mvnw dependency-check:check -DnvdApiKey=$env:"...b"
+
+
+Failed to request component-reports
+
+Tror build fail är pga failar för många dependecy-checks och att den listar vad som måste åtgärdas.
+Vissa saker kan man fixa i pom.xml tror jag, andra är jag osäker på exakt vad dom är ens.
+
+<img src="images/nvd-build-fail.png" alt="nvd build fail konsol" width="600">
+
+
