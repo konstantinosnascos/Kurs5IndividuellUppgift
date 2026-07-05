@@ -191,8 +191,33 @@ I application.properties är dev-profilen avstängd som standard:
 
 Detta minskar risken för security misconfiguration eftersom utvecklingsfunktionalitet inte exponeras av misstag i normal körning. Det är en enkel men viktig åtgärd: testkod kan finnas kvar för utveckling, men den ska då vara tydligt isolerad från produktion.
 
+## A04 – Unrestricted Resource Consumption
 
+### Identifiering
 
+Applikationen gör anrop till OpenAI. Det innebär två risker:
+
+Många anrop kan skapa onödiga kostnader.
+Många samtidiga eller långsamma anrop kan belasta applikationen.
+
+Eftersom endpointen /api/ai/analyze kan trigga externa API-anrop behövdes skydd mot okontrollerad resursförbrukning. 
+Detta hanterades till viss del redan i 1K5-projektet med RestClientConfig-klassen som hanterar timeouts och retry/fallback. 
+Därefter har även bucket4j använts för rate-limiting som begränsar hur många anrop som kan göras per IP-adress. 
+Detta är en viktig risk att hantera eftersom skenande kostnader kan vara problematiskt i alla företag oavsett hur bra en app annars fungerar. 
+Med Bucket4j, timeouts och fallback blir applikationen mer motståndskraftig mot både överbelastning och externa fel.
+
+## Slutsats:
+
+I säkerhetsgranskningen identifierades tre huvudsakliga riskområden:
+
+#### Sårbara och utdaterade dependencies.
+#### Test-endpoint som riskerade att exponeras utanför utvecklingsmiljö.
+#### Risk för okontrollerad resursförbrukning vid externa AI-anrop.
+
+De mest kritiska dependency-fynden åtgärdades genom uppdatering av Spring Boot, Tomcat och Log4j. Efter dessa åtgärder återstår endast mindre vulnerabilities.
+
+Test-endpointen har begränsats till dev-profil och externa API-anrop skyddas med rate limiting, timeouts, retry-logik och fallback. 
+Allt detta gör applikationen mer robust, minskar risken för felkonfiguration och skyddar mot onödiga kostnader eller överbelastning av systemet.
 
 
 
