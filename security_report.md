@@ -56,3 +56,10 @@ Vissa saker kan man fixa i pom.xml tror jag, andra är jag osäker på exakt vad
 <img src="images/nvd-build-fail.png" alt="nvd build fail konsol" width="600">
 
 
+Problem med spring-core, spring-web är borta, jackson-databind och tomcat är förbättrade med färre och mindre problem. tomcat är inget jag rört så det va uppdatering av spring versionen endast. Osäker på hur man ändrar/migrerar till spring boot 4 men kan nog styra tomcat direkt i pom.xml.
+
+<img src="images/before-updates-dependecy-report.png" alt="before dependecy updates" width="600">
+
+<img src="images/summary-after-dependency-updates.png" alt="affter dependecy updates" width="600">
+
+<img src="images/tomcat-update-summary.png" alt="after tomcate update" width="600">
