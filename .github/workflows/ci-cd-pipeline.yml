@@ -25,6 +25,9 @@ jobs:
       - name: Run tests
         run: mvn test
 
+      - name: OWASP Dependency Check
+        run: mvn dependency-check:check -DnvdApiKey=${{ secrets.NVD_API_KEY }}
+
   docker-build-and-push:
     name: Build and push Docker image
     runs-on: ubuntu-latest
