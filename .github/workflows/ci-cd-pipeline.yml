@@ -23,7 +23,7 @@ jobs:
           cache: maven
 
       - name: Run tests
-        run: mvn test
+        run: mvn clean test -e
 
       - name: OWASP Dependency Check
         run: mvn dependency-check:check -DnvdApiKey=${{ secrets.NVD_API_KEY }}
