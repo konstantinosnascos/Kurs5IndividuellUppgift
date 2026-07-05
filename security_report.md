@@ -60,6 +60,13 @@ Problem med spring-core, spring-web är borta, jackson-databind och tomcat är f
 
 <img src="images/before-updates-dependecy-report.png" alt="before dependecy updates" width="600">
 
-<img src="images/summary-after-dependency-updates.png" alt="affter dependecy updates" width="600">
+<img src="images/summary-after-dependency-updates.png" alt="after dependecy updates" width="600">
 
-<img src="images/tomcat-update-summary.png" alt="after tomcate update" width="600">
+<img src="images/3-kvar.png" alt="3 dependecy fixes kvar" width="600">
+
+<img src="images/log4j-fix.png" alt="log4j fixad" width="600">
+
+
+
+
+
