@@ -137,14 +137,14 @@ Efter detta var de kritiska Spring- och Tomcat-fynden åtgärdade. Log4j-fynden 
 
 <img src="images/log4j-fix.png" alt="Log4j åtgärdad" width="600">
 
-Kvarvarande fynd
+### Kvarstående vulnerabilities
 
 Efter åtgärder återstod endast medium-fynd:
 
 hibernate-validator-8.0.3.Final
 jackson-databind-2.21.4
 
-Jackson-fyndet är ett medium-fynd, men den rapporterade fixversionen gick inte att hämta från Maven Central och gav error(kan möjligtvis åtgärda innan deadline). Därför lämnades Jackson på den version som Spring Boot hanterar, och fyndet dokumenteras som medium-risk som bör följas upp vid nästa Spring Boot- eller Jackson-patch.
+Jackson-fyndet är ett medium-fynd, men den rapporterade fixversionen som föreslogs gick inte att hämta från Maven Central och gav error(kan möjligtvis åtgärda innan deadline). Därför lämnades Jackson på den version som Spring Boot hanterar, och fyndet dokumenteras som medium-risk som bör följas upp vid nästa Spring Boot- eller Jackson-patch.
 
 ### Prioritering
 
@@ -158,3 +158,41 @@ Det gör att framtida kritiska dependency-problem inte missas manuellt. Det kan 
 
 ## A05/A08 – Security Misconfiguration: test-endpoint i produktion
 ### Identifiering
+
+Projektet innehöll en test-endpoint för att simulera HTTP 429 Too Many Requests:
+
+@PostMapping("/test429")
+public ResponseEntity<String> test429() {
+return ResponseEntity
+.status(HttpStatus.TOO_MANY_REQUESTS)
+.body("Rate limit");
+}
+
+Denna endpoint är användbar under utveckling och test, men bör inte vara aktiv i produktion. Om test- eller debug-endpoints lämnas exponerade kan de avslöja funktionalitet eller skapa oönskat beteende.
+
+### Åtgärd
+
+Jag lade till Spring-profilen dev på test-controllern:
+
+@Profile("dev")
+@RestController
+public class RateLimitTestController {
+...
+}
+
+Det innebär att endpointen bara laddas när dev-profilen är aktiv.
+
+I application.properties är dev-profilen avstängd som standard:
+
+#spring.profiles.active=dev
+#Avkommentera raden ovan för att aktivera test-endpoints och utvecklingskomponenter.
+
+### Analys
+
+Detta minskar risken för security misconfiguration eftersom utvecklingsfunktionalitet inte exponeras av misstag i normal körning. Det är en enkel men viktig åtgärd: testkod kan finnas kvar för utveckling, men den ska då vara tydligt isolerad från produktion.
+
+
+
+
+
+
