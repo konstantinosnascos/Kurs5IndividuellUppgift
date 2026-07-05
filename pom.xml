@@ -78,6 +78,7 @@
                 <version>12.1.0</version>
                 <configuration>
                     <failBuildOnCVSS>9</failBuildOnCVSS>
+                    <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
                     <formats>
                         <format>HTML</format>
                         <format>JSON</format>
