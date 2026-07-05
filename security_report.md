@@ -46,8 +46,7 @@ $env:TMP="C:\temp"
 New-Item -ItemType Directory -Force C:\temp
 $env:TEMP="C:\temp"
 $env:TMP="C:\temp"
-./mvnw dependency-check:check -DnvdApiKey=$env:"...b"
-
+./mvnw dependency-check:check -DnvdApiKey=$env:NVD_API_KEY
 
 Failed to request component-reports
 
