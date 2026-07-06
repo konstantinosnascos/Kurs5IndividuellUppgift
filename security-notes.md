@@ -1,0 +1,92 @@
+OWASP TOP 10 säkerhetsanalys
+
+## Top 10:2025 Lista från https://owasp.org/Top10/2025/
+### A01:2025 - Broken Access Control
+### A02:2025 - Security Misconfiguration
+### A03:2025 - Software Supply Chain Failures
+### A04:2025 - Cryptographic Failures
+### A05:2025 - Injection
+### A06:2025 - Insecure Design
+### A07:2025 - Authentication Failures
+### A08:2025 - Software or Data Integrity Failures
+### A09:2025 - Security Logging and Alerting Failures
+### A10:2025 - Mishandling of Exceptional Conditions
+
+nämna skillnader mellan 2021 top 10 och 2025 kanske? förklara fördelar med att utgå från var lista?
+
+
+Uppgift 2k5
+
+hitta 3 risker:
+A06
+dependencies med kända sårbarheter. inga varnas för i pom, dubbelkolla med en extern tjänst
+snabbt, kanske inte finns problem
+Slog på dependency graph, dependabot alerts/security updates
+<img src="images/dependabot.png" alt="Tester/Docker" width="600">
+
+
+Repositoryt kollades med GitHub Dependabot och Secret Scanning. Dependabot hittade inga sårbarheter i projektets Maven-dependencies. Secret Scanning hittade inga exponerade hemligheter eller API-nycklar i repositoryt.
+Lagt till
+<groupId>org.owasp</groupId>
+<artifactId>dependency-check-maven</artifactId>
+i pom och kör en kontroll också just nu,
+
+mvn dependency-check:check -DnvdApiKey=nist.api.key
+
+A05
+test-endpoint är kvar. kan lägga som dev-profil kanske
+jag har kvar clientservice som inte används, kan tas bort,
+snabbt
+
+Lagt till @Profile("dev") i ratelimittestcontroller.
+#spring.profiles.active=dev
+
+A08 Security Misconfig
+endast en config klass just nu, men den är väldigt simpel, hitta problem med vad den inte täcker och lägg till.
+
+A04 unrestricted resource consumption, en del är hanterat. kolla vad som saknas och förbättra snabbt?
+
+har lagt till bucket4j för att begränsa antal anrop man kan göra(del av lösning för A04)
+
+
+
+New-Item -ItemType Directory -Force C:\temp
+$env:TEMP="C:\temp"
+$env:TMP="C:\temp"
+./mvnw dependency-check:check -DnvdApiKey=$env:NVD_API_KEY
+
+
+$env:NVD_API_KEY="...b"
+mkdir C:\temp
+$env:TEMP="C:\temp"
+$env:TMP="C:\temp"
+./mvnw dependency-check:check
+
+
+
+New-Item -ItemType Directory -Force C:\temp
+$env:TEMP="C:\temp"
+$env:TMP="C:\temp"
+./mvnw dependency-check:check -DnvdApiKey=$env:NVD_API_KEY
+
+Failed to request component-reports
+
+Tror build fail är pga failar för många dependecy-checks och att den listar vad som måste åtgärdas.
+Vissa saker kan man fixa i pom.xml tror jag, andra är jag osäker på exakt vad dom är ens.
+
+<img src="images/nvd-build-fail.png" alt="nvd build fail konsol" width="600">
+
+
+Problem med spring-core, spring-web är borta, jackson-databind och tomcat är förbättrade med färre och mindre problem. tomcat är inget jag rört så det va uppdatering av spring versionen endast. Osäker på hur man ändrar/migrerar till spring boot 4 men kan nog styra tomcat direkt i pom.xml.
+
+<img src="images/before-updates-dependecy-report.png" alt="before dependecy updates" width="600">
+
+<img src="images/summary-after-dependency-updates.png" alt="after dependecy updates" width="600">
+
+<img src="images/3-kvar.png" alt="3 dependecy fixes kvar" width="600">
+
+<img src="images/log4j-fix.png" alt="log4j fixad" width="600">
+
+
+
+

@@ -1,76 +1,4 @@
-OWASP TOP 10 säkerhetsanalys
-
-Uppgift 2k5
-
-hitta 3 risker:
-A06
-dependencies med kända sårbarheter. inga varnas för i pom, dubbelkolla med en extern tjänst
-snabbt, kanske inte finns problem
-Slog på dependency graph, dependabot alerts/security updates
-<img src="images/dependabot.png" alt="Tester/Docker" width="600">
-
-
-Repositoryt kollades med GitHub Dependabot och Secret Scanning. Dependabot hittade inga sårbarheter i projektets Maven-dependencies. Secret Scanning hittade inga exponerade hemligheter eller API-nycklar i repositoryt. 
-Lagt till 
-<groupId>org.owasp</groupId>
-<artifactId>dependency-check-maven</artifactId>
-i pom och kör en kontroll också just nu,
-
-mvn dependency-check:check -DnvdApiKey=nist.api.key
-
-A05
-test-endpoint är kvar. kan lägga som dev-profil kanske
-jag har kvar clientservice som inte används, kan tas bort,
-snabbt
-
-Lagt till @Profile("dev") i ratelimittestcontroller.
-#spring.profiles.active=dev
-
-A08 Security Misconfig
-endast en config klass just nu, men den är väldigt simpel, hitta problem med vad den inte täcker och lägg till.
-
-A04 unrestricted resource consumption, en del är hanterat. kolla vad som saknas och förbättra snabbt?
-
-har lagt till bucket4j för att begränsa antal anrop man kan göra(del av lösning för A04)
-
-
-
-$env:NVD_API_KEY="...b"
-mkdir C:\temp
-$env:TEMP="C:\temp"
-$env:TMP="C:\temp"
-./mvnw dependency-check:check
-
-
-
-New-Item -ItemType Directory -Force C:\temp
-$env:TEMP="C:\temp"
-$env:TMP="C:\temp"
-./mvnw dependency-check:check -DnvdApiKey=$env:NVD_API_KEY
-
-Failed to request component-reports
-
-Tror build fail är pga failar för många dependecy-checks och att den listar vad som måste åtgärdas.
-Vissa saker kan man fixa i pom.xml tror jag, andra är jag osäker på exakt vad dom är ens.
-
-<img src="images/nvd-build-fail.png" alt="nvd build fail konsol" width="600">
-
-
-Problem med spring-core, spring-web är borta, jackson-databind och tomcat är förbättrade med färre och mindre problem. tomcat är inget jag rört så det va uppdatering av spring versionen endast. Osäker på hur man ändrar/migrerar till spring boot 4 men kan nog styra tomcat direkt i pom.xml.
-
-<img src="images/before-updates-dependecy-report.png" alt="before dependecy updates" width="600">
-
-<img src="images/summary-after-dependency-updates.png" alt="after dependecy updates" width="600">
-
-<img src="images/3-kvar.png" alt="3 dependecy fixes kvar" width="600">
-
-<img src="images/log4j-fix.png" alt="log4j fixad" width="600">
-
-
-
-
-
-# OWASP Top 10 säkerhetsanalys
+# OWASP Top 10 Säkerhetsrapport
 
 ## Fokus i analysen är tre risker:
 
@@ -91,17 +19,13 @@ Dependabot hittade inga sårbarheter i projektets Maven-dependencies och Secret 
 
 Jag la till dependency-check-maven i pom.xml och körde med NVD API-nyckel:
 
-New-Item -ItemType Directory -Force C:\temp
-$env:TEMP="C:\temp"
-$env:TMP="C:\temp"
-./mvnw dependency-check:check -DnvdApiKey=$env:NVD_API_KEY
-
-Först misslyckades körningen på grund av filrättigheter och Sonatype OSS Index 401 Unauthorized vilket jag använde AI för att åtgärda enkelt. Temp-problemet löstes genom att peka TEMP och TMP mot C:\temp. Sonatype OSS Index stängdes av i Dependency-Check eftersom NVD räcker för sig.
+Först misslyckades körningen på grund av filrättigheter och Sonatype OSS Index 401 Unauthorized, problemet identifierades och åtgärdades med hjälp av AI. Temp-problemet löstes genom att peka TEMP och TMP mot C:\temp. Sonatype OSS Index stängdes av i Dependency-Check eftersom NVD räcker för sig.
 
 <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
+
 ### Resultat före åtgärd
 
-Dependency-Check hittade flera sårbara dependencies, bland annat Spring, Tomcat, Jackson och Log4j. Bygget failade eftersom vissa fynd hade CVSS över gränsen 9 som sattes i pom.xml.
+Dependency-Check hittade flera sårbara dependencies, bland annat Spring, Tomcat, Jackson och Log4j. Bygget failade eftersom vissa fynd hade CVSS över gränsen 9 som sattes i pom.xml. Detta visar att Dependabot och OWASP Dependency-Check kompletterar varandra, eftersom de använder olika metoder för att identifiera sårbarheter.
 
 <img src="images/nvd-build-fail.png" alt="Dependency Check build failure" width="600">
 
@@ -111,6 +35,7 @@ Dependency-Check hittade flera sårbara dependencies, bland annat Spring, Tomcat
 
 Jag uppdaterade projektets Spring Boot-parent till en nyare patchversion inom Spring Boot 3:
 
+*senaste versioner*
 <version>3.5.16</version>
 
 Detta uppdaterade flera dependencies, bland annat Spring Framework, Jackson och Tomcat.
@@ -144,7 +69,7 @@ Efter åtgärder återstod endast medium-fynd:
 hibernate-validator-8.0.3.Final
 jackson-databind-2.21.4
 
-Jackson-fyndet är ett medium-fynd, men den rapporterade fixversionen som föreslogs gick inte att hämta från Maven Central och gav error(kan möjligtvis åtgärda innan deadline). Därför lämnades Jackson på den version som Spring Boot hanterar, och fyndet dokumenteras som medium-risk som bör följas upp vid nästa Spring Boot- eller Jackson-patch.
+Jackson-fyndet är ett medium-fynd, men den rapporterade fixversionen som föreslogs gick inte att hämta från Maven Central och gav error(kan möjligtvis åtgärda innan deadline) eftersom det vid tillfället inte fanns tillgängligt via Maven central. Därför lämnades Jackson på den version som Spring Boot hanterar, och fyndet dokumenteras som medium-risk som bör följas upp vid nästa Spring Boot- eller Jackson-patch.
 
 ### Prioritering
 
@@ -152,7 +77,9 @@ Detta prioriterades högst och las mest tid på eftersom sårbara tredjepartsbib
 
 <failBuildOnCVSS>9</failBuildOnCVSS>
 
-Det gör att framtida kritiska dependency-problem inte missas manuellt. Det kan vara värt att nämna att alla versioner som satts lokalt i pom.xml måste uppdateras manuellt.
+Det gör att framtida kritiska dependency-problem inte missas manuellt. En begränsning med denna lösning är att alla versioner som satts lokalt i pom.xml måste uppdateras manuellt. Säkerhetskontrollen körs dessutom automatiskt i projektets GitHub Actions tillsammans med övriga CI/CD-steg.
+
+<img src="images/actions.png" alt="Github actions fungerar" width="600">
 
 
 
@@ -206,7 +133,16 @@ Därefter har även bucket4j använts för rate-limiting som begränsar hur mån
 Detta är en viktig risk att hantera eftersom skenande kostnader kan vara problematiskt i alla företag oavsett hur bra en app annars fungerar. 
 Med Bucket4j, timeouts och fallback blir applikationen mer motståndskraftig mot både överbelastning och externa fel.
 
-## Slutsats:
+
+### Analys
+Denna åtgärd prioriterades eftersom applikationen använder ett externt AI-API där varje anrop innebär en kostnad. 
+Utan begränsningar skulle en angripare eller ett felaktigt klientprogram kunna generera ett mycket stort antal anrop, vilket både ökar kostnaderna och riskerar att försämra tillgängligheten för andra användare. 
+Kombinationen av rate limiting, timeouts och fallback ger därför flera skyddslager mot både överbelastning och ekonomiska konsekvenser. 
+Detta är särskilt relevant i dagsläget när kostnaderna för användning av AI ökar.
+Själva RateLimitFilter-klassen återanvändes från ett tidigare projekt och behövde därför inga kodändringar. 
+Återanvändning av tidigare testad kod minskar utvecklingstiden och risken att introducera nya fel i säkerhetskritisk funktionalitet.
+
+## Sammanfattning av genomförda åtgärder & slutsats:
 
 I säkerhetsgranskningen identifierades tre huvudsakliga riskområden:
 
@@ -214,10 +150,24 @@ I säkerhetsgranskningen identifierades tre huvudsakliga riskområden:
 #### Test-endpoint som riskerade att exponeras utanför utvecklingsmiljö.
 #### Risk för okontrollerad resursförbrukning vid externa AI-anrop.
 
-De mest kritiska dependency-fynden åtgärdades genom uppdatering av Spring Boot, Tomcat och Log4j. Efter dessa åtgärder återstår endast mindre vulnerabilities.
+De mest kritiska dependency-fynden åtgärdades genom uppdatering av Spring Boot, Tomcat och Log4j. Efter dessa åtgärder återstår endast mindre vulnerabilities i olika dependecies som används.
 
 Test-endpointen har begränsats till dev-profil och externa API-anrop skyddas med rate limiting, timeouts, retry-logik och fallback. 
 Allt detta gör applikationen mer robust, minskar risken för felkonfiguration och skyddar mot onödiga kostnader eller överbelastning av systemet.
 
 
+Projektet innehåller utökad säkerhet som täcker bland annat:
 
+- OWASP Dependency-Check
+- Dependabot
+- GitHub Secrets
+- Docker Secrets
+- Bucket4j Rate Limiting
+- Automatisk säkerhetskontroll i CI/CD
+
+Säkerhetsarbetet handlar här mest om att upptäcka problem så tidigt som möjligt och automatisera kontrollerna för att minska risken att sårbarheter når produktion i ett senare stadie.
+
+
+## Reflektion kring OWASP Top 10
+
+Denna laboration utgår från de OWASP-kategorier som används i uppgiftsbeskrivningen, där exempelvis A06 – Vulnerable and Outdated Components används för att beskriva sårbara tredjepartsbibliotek. Samtidigt har OWASP publicerat en nyare Top 10-version (2025), där vissa kategorier har omstrukturerats. Till exempel återfinns beroendesäkerhet nu under A03 – Software Supply Chain Failures. Jag har utgått från vad som beskrevs i uppgiften, men jag är också medveten om att det finns senare OWASP top 10 lista att utgå från som täcker ungefär samma säkerhetspunkter med andra beskrivningar.
